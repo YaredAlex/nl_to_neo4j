@@ -1,4 +1,4 @@
-# Streamlit Neo4j LLM App — Gemini + LangChain
+# Streamlit Neo4j LLM App Using Gemini + LangChain
 
 ## Start
 
@@ -8,6 +8,7 @@
 ## Notes
 
 - The chain uses Gemini (via langchain-google-genai). Set `GOOGLE_API_KEY`
+- The chain uses langchain_neo4j package. Set `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`
 
 ## Example prompts
 
