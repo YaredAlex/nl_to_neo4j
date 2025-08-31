@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate,PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_neo4j import GraphCypherQAChain, Neo4jGraph
+import streamlit as st
+from helper import format_history_text, trimmed_history
+
 load_dotenv(override=True)
 
 NEO4J_URI = os.getenv('NEO4J_URI')
@@ -34,12 +37,6 @@ cypher_prompt = PromptTemplate(
 )
 
 
-explain_prompt = ChatPromptTemplate.from_messages([
-("system", """You are a helpful assistant that explains Cypher queries and their results in plain English."""),
-("user", "Here is the Cypher:\n```cypher\n{cypher}\n```\n\nResults JSON:\n{results_json}\n\nExplain what this query "
-"does and what the results show.")
-])
-
 llm = ChatGoogleGenerativeAI(model=GEMINI_MODEL, temperature=0.0, max_retries=1)
 graph = Neo4jGraph(url=NEO4J_URI, username=NEO4J_USER, password=NEO4J_PASSWORD)
 
@@ -55,7 +52,7 @@ chain = GraphCypherQAChain.from_llm(
     # use_function_response=True,# model need to have native fanction calling ability
 )
 
-def run_chain(user_prompt: str):
+def run_chain(user_prompt: str,history):
     try:
         res = chain.invoke({"query": user_prompt})
         # print(res)
@@ -65,3 +62,36 @@ def run_chain(user_prompt: str):
         if e.get("message") and "This query cannot be answered using the provided schema" in e.message:
             return {"error": "This query cannot be answered using the provided schema"}
         return {"error": str(e)}
+    
+
+def run_chain_with_history(user_prompt: str, history_items=5):
+
+    chat_history_text = format_history_text(st.session_state.history, max_items=history_items)
+    if chat_history_text:
+        augmented_query = (
+            f"""Conversation history (most recent first):
+            {chat_history_text}
+            Now the user asks:
+            {user_prompt}
+            """
+        )
+    else:
+        augmented_query = user_prompt
+
+    try:
+        res = chain.invoke({"query": augmented_query})
+        intermediate_steps = res.get("intermediate_steps", [])
+        cypher_text = ""
+        if  len(intermediate_steps) > 0:
+            cypher_text = intermediate_steps[0].get("query", "")
+
+        result_text = res.get("result") or res.get("output_text") or str(res)
+        st.session_state.history.append({"user": user_prompt, "result": result_text, "cypher": cypher_text})
+        st.session_state.history = trimmed_history(st.session_state.history, st.session_state.max_history_items)
+
+        return {"result": result_text, "query": cypher_text}
+    except Exception as e:
+        msg = str(e)
+        if hasattr(e, "message") and isinstance(e.message, str) and "This query cannot be answered using the provided schema" in e.message:
+            return {"error": "This query cannot be answered using the provided schema"}
+        return {"error": msg}
