@@ -12,8 +12,10 @@
 
 ## Example prompts
 
-1. Who directed Top Gun
+1. Who played in Top Gun?
 2. Which actors acted in The Matrix
 3. Which movies were released in 1999
 4. Which actor has acted in the most movies
 5. Find actors who acted in at least 3 movies released after 2000
+6. Which pairs of actors have acted together in more than one movie?
+7. List all movies where Tom Hanks and Meg Ryan acted together.
