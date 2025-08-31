@@ -1,0 +1,8 @@
+streamlit
+neo4j
+pandas
+python-dotenv
+langchain
+langchain-google-genai
+langchain_neo4j
+google-generativeai
