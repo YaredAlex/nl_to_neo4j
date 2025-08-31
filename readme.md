@@ -1,6 +1,6 @@
-# Streamlit Neo4j LLM App — Gemini + LangChain (v2)
+# Streamlit Neo4j LLM App — Gemini + LangChain
 
-## Quick start
+## Start
 
 1. `pip install -r requirements.txt`
 2. `streamlit run ui.py`
