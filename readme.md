@@ -10,6 +10,10 @@
 - The chain uses Gemini (via langchain-google-genai). Set `GOOGLE_API_KEY`
 - The chain uses langchain_neo4j package. Set `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`
 
+## Dataset
+
+- neo4j built-in dataset Movie graph
+
 ## Example prompts
 
 1. Who played in Top Gun?
